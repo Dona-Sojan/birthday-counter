@@ -9,30 +9,95 @@
   <link rel="stylesheet" href="styles/flexbox-center-container.css" media="all">
   <link rel="stylesheet" href="styles/system-fonts.css" media="all">
   <link rel="stylesheet" href="styles/style.css" media="all">
+  
 </head>
-
 <body>
-  <canvas id=c></canvas>
+  <!-- Video Overlay (hidden by default) -->
+  <div id="videoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:1000;justify-content:center;align-items:center;">
+    <video id="introVideo" width="80%" controls>
+      <source src="intro.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <button onclick="closeVideo()" style="position: absolute; top: 20px; right: 40px; font-size: 2rem;">&times;</button>
+  </div>
+  <canvas id="c"></canvas>
   <canvas id="confetti"></canvas>
   <div class="container" id="count">
     <h1 id="head">Countdown to your birthday:</h1>
     <ul>
-      <li><span id="day"></span>days</li>
-      <li><span id="hour"></span>hours</li>
-      <li><span id="minute"></span>minutes</li>
-      <li><span id="second"></span>seconds</li>
+      <li><span id="day"></span> days</li>
+      <li><span id="hour"></span> hours</li>
+      <li><span id="minute"></span> minutes</li>
+      <li><span id="second"></span> seconds</li>
     </ul>
+    <div class="nav-item" style="text-align:center;margin-top:10px;">
+      <a class="nav-link" href="new.html">About</a>
+    </div>
   </div>
   <div id="merrywrap" class="merrywrap">
     <canvas id="snowfall"></canvas>
-    <div class="giftbox">
+    <div class="giftbox" onclick="openGift()">
       <div class="cover">
         <div></div>
       </div>
       <div class="box"></div>
     </div>
-</body>
-<script src="scripts/confetti.min.js" charset="utf-8"></script>
-<script src="scripts/index.js" charset="utf-8"></script>
+  </div>
+  <div id="birthdayMsg" style="display:none;font-size:2rem;color:#ff4081;text-align:center;margin:20px 0;">
+    🎉 
+  </div>
+  <audio id="bdayMusic" src="bday.mp3" preload="auto"></audio>
+  <!-- Removed duplicate openGift and closeVideo definitions to avoid conflicts -->
+  <script src="scripts/confetti.min.js" charset="utf-8"></script>
+  <script>
+    // Ensure the gift can only be opened once
+    let giftOpened = false;
 
+    function openGift() {
+      if (giftOpened) return;
+      giftOpened = true;
+
+      // Show birthday message and play music
+      document.getElementById('birthdayMsg').style.display = 'block';
+      var audio = document.getElementById('bdayMusic');
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(function(e) {
+          console.log('Audio play was prevented:', e);
+        });
+
+        // When music ends, hide message and show video overlay
+        let fallbackTimeout;
+        audio.onended = function() {
+          clearTimeout(fallbackTimeout);
+          audio.onended = null;
+          document.getElementById('birthdayMsg').style.display = 'none';
+          document.getElementById('videoOverlay').style.display = 'flex';
+          var introVideo = document.getElementById('introVideo');
+          if (introVideo) introVideo.play();
+        };
+
+        // Fallback: after 10 seconds, hide message and show video if music hasn't ended
+        fallbackTimeout = setTimeout(function() {
+          audio.onended = null;
+          if (!audio.paused) {
+            audio.pause();
+            audio.currentTime = 0;
+          }
+          document.getElementById('birthdayMsg').style.display = 'none';
+          document.getElementById('videoOverlay').style.display = 'flex';
+          var introVideo = document.getElementById('introVideo');
+          if (introVideo) introVideo.play();
+        }, 10000);
+      }
+    }
+
+    function closeVideo() {
+      document.getElementById('videoOverlay').style.display = 'none';
+      document.getElementById('introVideo').pause();
+      document.getElementById('introVideo').currentTime = 0;
+    }
+  </script>
+  <script src="scripts/index.js" charset="utf-8"></script>
+</body>
 </html>

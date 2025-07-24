@@ -9,3 +9,8 @@ module.exports = {
   singleQuote: true,
   bracketSpacing: true
 };
+document.getElementById("revealBtn").addEventListener("click", () => {
+  document.getElementById("surprise").style.display = "block";
+  document.getElementById("bdayMusic").play();
+  confetti({ spread: 100, particleCount: 200 });
+});
